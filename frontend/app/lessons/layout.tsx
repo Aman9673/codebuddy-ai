@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Python lessons",
-  description: "In-depth beginner Python lessons with detailed explanations, worked examples, guided practice, and separate topic quizzes.",
+  title: "Coding lessons",
+  description: "Beginner lessons in Python, C++, Java, and C# with worked examples, practice, and quizzes.",
 };
 
 export default function LessonsLayout({

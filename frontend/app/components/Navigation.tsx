@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const navigationItems = [
   { label: "Dashboard", href: "/", icon: "🏠" },
@@ -12,11 +13,43 @@ const navigationItems = [
   { label: "My Notes", href: "/notes", icon: "📝" },
 ];
 
-export default function Navigation() {
+export default function Navigation({ initialProfile }: { initialProfile?: { name: string } | null }) {
   const pathname = usePathname();
+  const [profile, setProfile] = useState(initialProfile ?? null);
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState(false);
+
+  useEffect(() => {
+    if (initialProfile !== undefined) return;
+    const controller = new AbortController();
+    void fetch("/api/auth/me", { cache: "no-store", signal: controller.signal })
+      .then((response) => response.ok ? response.json() : null)
+      .then((account) => {
+        if (!controller.signal.aborted) setProfile(account);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, [initialProfile, pathname]);
+
+  async function signOut() {
+    setSigningOut(true);
+    setSignOutError(false);
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: { "X-CodeBuddy-Auth": "1" },
+      });
+      if (!response.ok) throw new Error("Sign out failed");
+      window.location.replace("/");
+    } catch {
+      setSignOutError(true);
+    } finally {
+      setSigningOut(false);
+    }
+  }
 
   return (
-    <header className="cosmic-navbar">
+    <header className={`cosmic-navbar${profile ? "" : " cosmic-navbar-guest"}`}>
       <Link href="/" className="cosmic-brand">
         <span className="brand-panda">🐼</span>
 
@@ -47,10 +80,23 @@ export default function Navigation() {
       </nav>
 
       <div className="cosmic-nav-right">
-        <span className="cosmic-online-dot" title="CodeBuddy is ready" />
-        <span className="cosmic-profile" title="Your profile">
-          🧑‍🚀
-        </span>
+        {profile ? (
+          <details className="auth-account-menu">
+            <summary className="cosmic-profile" aria-label={`Account menu for ${profile.name}`}>🧑‍🚀</summary>
+            <div className="auth-account-panel">
+              <strong>{profile.name}</strong>
+              <button type="button" onClick={signOut} disabled={signingOut}>
+                {signingOut ? "Signing out…" : "Sign out"}
+              </button>
+              {signOutError && <small role="alert">Could not sign out. Try again.</small>}
+            </div>
+          </details>
+        ) : (
+          <>
+            <Link href="/login" className="auth-nav-login">Sign in</Link>
+            <Link href="/signup" className="auth-nav-signup">Sign up</Link>
+          </>
+        )}
       </div>
 
       <nav className="app-tabbar" aria-label="Phone navigation">

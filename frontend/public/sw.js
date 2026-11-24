@@ -1,13 +1,6 @@
 const CACHE_PREFIX = "codebuddy-";
-const CACHE_NAME = `${CACHE_PREFIX}v5`;
+const CACHE_NAME = `${CACHE_PREFIX}v6`;
 const APP_SHELL = [
-  "/",
-  "/lessons",
-  "/playground",
-  "/ai-tutor",
-  "/notes",
-  "/quizzes",
-  "/about",
   "/code-runner.js",
   "/manifest.json",
   "/icons/icon-192.png",
@@ -57,26 +50,12 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (request.mode === "navigate") {
-    event.respondWith((async () => {
-      try {
-        const response = await fetch(request);
-        if (response.ok && APP_SHELL.includes(url.pathname)) {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(url.pathname, response.clone());
-        }
-        return response;
-      } catch {
-        const cache = await caches.open(CACHE_NAME);
-        return (
-          (await cache.match(url.pathname)) ||
-          (await cache.match("/")) ||
-          new Response("CodeBuddy is offline.", {
-            status: 503,
-            headers: { "Content-Type": "text/plain; charset=utf-8" },
-          })
-        );
-      }
-    })());
+    event.respondWith(fetch(request).catch(() =>
+      new Response("CodeBuddy is offline. Reconnect to access your account.", {
+        status: 503,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      }),
+    ));
     return;
   }
 

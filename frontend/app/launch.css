@@ -1,4 +1,13 @@
 /* Shared finishing layer: quiet surfaces, clear actions, and purposeful motion. */
+.tutor-language-select {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid #574477;
+  border-radius: 9px;
+  background: #17152d;
+  color: #f3f0ff;
+}
+.tutor-topbar-actions { flex-wrap: wrap; }
 :root { color-scheme: dark; }
 html { scroll-behavior: smooth; scroll-padding-top: 110px; }
 body { background: #070918; color: #f3f0ff; }

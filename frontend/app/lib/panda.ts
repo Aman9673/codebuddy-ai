@@ -1,3 +1,9 @@
+import { compiledCourses } from "../lessons/compiled-courses";
+import { learningLanguages } from "../lessons/course";
+
+export const tutorLanguages = ["Python", "JavaScript", "C++", "Java", "C#"] as const;
+export type TutorLanguage = (typeof tutorLanguages)[number];
+
 export type PandaAnswer = {
   reply: string;
   source: string;
@@ -260,7 +266,7 @@ function teach(message: string): string {
   ].join("\n");
 }
 
-export async function askPanda(message: string): Promise<PandaAnswer> {
+export async function askPanda(message: string, language: TutorLanguage = "Python"): Promise<PandaAnswer> {
   const base = apiBase();
   if (base) {
     try {
@@ -272,7 +278,7 @@ export async function askPanda(message: string): Promise<PandaAnswer> {
         const response = await fetch(`${base}/api/tutor`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message }),
+          body: JSON.stringify({ message, language }),
           signal: AbortSignal.timeout(120000),
         });
         if (response.ok) {
@@ -293,5 +299,22 @@ export async function askPanda(message: string): Promise<PandaAnswer> {
     }
   }
 
-  return { reply: teach(message), source: "Built-in guidance" };
+  const course = compiledCourses.find((item) => learningLanguages[item.language] === language);
+  if (course) {
+    const topic = message.toLowerCase();
+    const unit = course.units.find((item) => topic.includes(item.topic.toLowerCase()) ||
+      topic.includes(item.topic.toLowerCase().replace(/s$/, ""))) ?? course.units[0];
+    const { content } = unit;
+    return {
+      reply: [
+        `Panda is offline. Here is a worked ${language} example from the lessons.`,
+        content.explanation,
+        `\`\`\`${course.language}\n${content.code}\n\`\`\``,
+        `Expected output: ${content.output}`,
+        content.exercise,
+      ].join("\n\n"),
+      source: "Built-in guidance",
+    };
+  }
+  return { reply: teach(language === "JavaScript" ? `JavaScript: ${message}` : message), source: "Built-in guidance" };
 }

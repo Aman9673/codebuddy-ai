@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 import os
+from typing import Literal
 
 import httpx
 from fastapi import (
@@ -13,7 +14,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 import models
+from auth import router as auth_router
 from database import Base, engine, get_db
+from playground import router as playground_router
 
 
 # --------------------------------------------------
@@ -28,6 +31,8 @@ app = FastAPI(
 
 # Create database tables automatically.
 Base.metadata.create_all(bind=engine)
+app.include_router(auth_router)
+app.include_router(playground_router)
 
 
 # --------------------------------------------------
@@ -284,6 +289,7 @@ OLLAMA_MODEL = "qwen2.5:3b"
 
 class TutorRequest(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
+    language: Literal["Python", "JavaScript", "C++", "Java", "C#"] | None = None
 
 
 class TutorResponse(BaseModel):
@@ -312,6 +318,9 @@ Rules:
 - Provide correct code examples.
 - Help students understand rather than memorize.
 - Be patient, friendly, and encouraging.
+
+Preferred language: {request.language or "Use the language requested by the student."}
+Use the preferred language in examples unless the student asks for another.
 
 Student's question:
 {user_message}

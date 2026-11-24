@@ -1,3 +1,18 @@
+import { compiledCourses } from "./compiled-courses";
+
+export const learningLanguages = {
+  python: "Python",
+  cpp: "C++",
+  java: "Java",
+  csharp: "C#",
+};
+
+export type LearningLanguage = keyof typeof learningLanguages;
+
+export function isLearningLanguage(value: string | null): value is LearningLanguage {
+  return value !== null && Object.hasOwn(learningLanguages, value);
+}
+
 export type Lesson = {
   id: number;
   chapterId: number;
@@ -8,6 +23,7 @@ export type Lesson = {
   description: string;
   level: string;
   xp: number;
+  language?: Exclude<LearningLanguage, "python">;
 };
 
 export type Chapter = {
@@ -15,6 +31,12 @@ export type Chapter = {
   title: string;
   description: string;
   icon: string;
+};
+
+export const courseFiles = {
+  cpp: { filename: "main.cpp", runtime: "a C++ compiler" },
+  java: { filename: "Main.java", runtime: "a Java JDK" },
+  csharp: { filename: "Program.cs", runtime: "a .NET console project" },
 };
 
 export const chapters: Chapter[] = [
@@ -42,6 +64,7 @@ export const chapters: Chapter[] = [
     description: "Organize related information in lists and dictionaries.",
     icon: "🗂️",
   },
+  ...compiledCourses.map(({ chapter }) => chapter),
 ];
 
 export const lessons: Lesson[] = [
@@ -177,21 +200,30 @@ export const lessons: Lesson[] = [
     level: "Beginner",
     xp: 20,
   },
+  ...compiledCourses.flatMap(({ chapter, language, units }) =>
+    units.map(({ id, title, topic, description, xp }) => ({
+      id, title, topic, description, xp, language,
+      chapterId: chapter.id, emoji: chapter.icon, duration: "10–15 min", level: "Beginner",
+    })),
+  ),
 ];
 
-export const lessonContent: Record<
-  number,
-  {
-    heading: string;
-    explanation: string;
-    code: string;
-    output: string;
-    question: string;
-    options: string[];
-    answer: number;
-    reason: string;
-  }
-> = {
+export type LessonContent = {
+  heading: string;
+  explanation: string;
+  code: string;
+  output: string;
+  question: string;
+  options: string[];
+  answer: number;
+  reason: string;
+  exercise?: string;
+};
+
+export const lessonContent: Record<number, LessonContent> = {
+  ...Object.fromEntries(compiledCourses.flatMap(({ units }) =>
+    units.map(({ id, content }) => [id, content]),
+  )),
   1: {
     heading: "Your first Python program",
     explanation:

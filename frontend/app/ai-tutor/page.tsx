@@ -7,7 +7,7 @@ import {
   type FormEvent,
 } from "react";
 import Link from "next/link";
-import { askPanda } from "../lib/panda";
+import { askPanda, tutorLanguages, type TutorLanguage } from "../lib/panda";
 
 type Message = {
   id: number;
@@ -15,33 +15,33 @@ type Message = {
   content: string;
 };
 
-const starterQuestions = [
+const suggestedQuestions = (language: TutorLanguage) => [
   {
     icon: "🐍",
-    title: "Learn Python",
-    description: "Explain Python variables simply.",
-    prompt: "Teach me Python variables with simple examples.",
+    title: `Learn ${language}`,
+    description: `Explain ${language} variables simply.`,
+    prompt: `Teach me ${language} variables with simple examples.`,
   },
   {
     icon: "💻",
     title: "Debug my code",
     description: "Help me understand coding errors.",
     prompt:
-      "How can I debug my code? Explain common errors with simple Python examples.",
+      `How can I debug my code? Explain common errors with simple ${language} examples.`,
   },
   {
     icon: "🚀",
     title: "Build a project",
     description: "Find a beginner-friendly project.",
     prompt:
-      "Suggest a beginner-friendly Python project and guide me through building it step by step.",
+      `Suggest a beginner-friendly ${language} project and guide me through building it step by step.`,
   },
   {
     icon: "🧠",
     title: "Practice coding",
     description: "Challenge yourself with a problem.",
     prompt:
-      "Give me an easy Python coding problem. Let me try solving it before showing the solution.",
+      `Give me an easy ${language} coding problem. Let me try solving it before showing the solution.`,
   },
 ];
 
@@ -90,6 +90,8 @@ function formatMessage(text: string) {
 }
 
 export default function AITutorPage() {
+  const [language, setLanguage] = useState<TutorLanguage>("Python");
+  const starterQuestions = suggestedQuestions(language);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -130,7 +132,7 @@ export default function AITutorPage() {
     setLoading(true);
 
     try {
-      const data = await askPanda(text);
+      const data = await askPanda(text, language);
       setEngine(data.source);
 
       const assistantMessage: Message = {
@@ -194,6 +196,15 @@ export default function AITutorPage() {
         </div>
 
         <div className="tutor-topbar-actions">
+          <select
+            className="tutor-language-select"
+            aria-label="Tutor language"
+            value={language}
+            disabled={loading}
+            onChange={(event) => setLanguage(event.target.value as TutorLanguage)}
+          >
+            {tutorLanguages.map((item) => <option key={item}>{item}</option>)}
+          </select>
           <span className="tutor-model-badge">
             <span className="status-dot" />
             {engine}

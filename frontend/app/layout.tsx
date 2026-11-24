@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { DM_Sans, Nunito } from "next/font/google";
 import "./globals.css";
 import "./launch.css";
-import Navigation from "./components/Navigation";
-import SiteFooter from "./components/SiteFooter";
+import "./auth.css";
+import SiteChrome from "./components/SiteChrome";
 import ServiceWorker from "./components/ServiceWorker";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     template: "%s · CodeBuddy AI",
   },
   description:
-    "Learn Python, practice JavaScript, ask Panda for help, and keep coding notes. Install CodeBuddy on your phone.",
+    "Learn Python, C++, Java, and C#, ask Panda for help, and keep coding notes. Install CodeBuddy on your phone.",
   applicationName: "CodeBuddy AI",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -75,10 +75,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ServiceWorker />
-        <Navigation />
-        <a className="skip-link" href="#main-content">Skip to content</a>
-        <div id="main-content" tabIndex={-1}>{children}</div>
-        <SiteFooter />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

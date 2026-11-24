@@ -1,0 +1,239 @@
+.auth-page {
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  padding: clamp(24px, 6vw, 72px) 16px;
+  color: #f5f4ff;
+  background:
+    radial-gradient(ellipse at 50% 0%, #201544, transparent 65%),
+    #070918;
+}
+
+.auth-card {
+  width: min(100%, 450px);
+  padding: clamp(20px, 5vw, 36px);
+  border: 1px solid #3b305b;
+  border-radius: 24px;
+  background: #11142c;
+  box-shadow: 0 24px 70px #05051080;
+}
+
+.auth-panda {
+  display: grid;
+  width: 55px;
+  height: 55px;
+  place-items: center;
+  margin-bottom: 16px;
+  border: 1px solid #7053af;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #3b255f, #22254a);
+  font-size: 29px;
+}
+
+.auth-card h1 {
+  margin: 0;
+  font: 900 clamp(28px, 6vw, 38px)/1.15 var(--font-display);
+}
+
+.auth-intro,
+.auth-switch {
+  margin: 10px 0 0;
+  color: #c5bfdb;
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0 18px;
+}
+
+.auth-form label,
+.auth-password-field {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.auth-form input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #51466e;
+  border-radius: 10px;
+  background: #0b0e22;
+  color: #f5f4ff;
+  font-size: 16px;
+}
+
+.auth-form input:focus-visible {
+  outline: 2px solid #a995f4;
+  outline-offset: 2px;
+}
+
+.auth-password {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-password button {
+  flex-shrink: 0;
+  padding: 0 10px;
+  border: 1px solid #51466e;
+  border-radius: 10px;
+  color: #dacaff;
+  background: #201a38;
+  font-size: 12px;
+}
+
+.auth-password-field small {
+  color: #c5bfdb;
+  font-weight: 400;
+}
+
+.auth-submit {
+  min-height: 46px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: linear-gradient(110deg, #6641ce, #8053d5);
+  color: white;
+  font-weight: 800;
+}
+
+.auth-submit:hover:not(:disabled) {
+  filter: brightness(1.13);
+}
+
+.auth-submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.auth-error {
+  margin: 0;
+  color: #ffb6c6;
+}
+
+.auth-switch a {
+  color: #d7c3ff;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-nav-login,
+.auth-nav-signup,
+.auth-account-panel button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #51466e;
+  border-radius: 12px;
+  background: #201a38;
+  color: #f5f4ff;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.auth-nav-signup {
+  border-color: #8053d5;
+  background: #6641ce;
+}
+
+.auth-nav-signup:hover {
+  background: #8053d5;
+}
+
+.cosmic-navbar-guest .cosmic-nav-right {
+  gap: 8px;
+}
+
+@media (max-width: 520px) {
+  .cosmic-navbar-guest .auth-nav-login,
+  .cosmic-navbar-guest .auth-nav-signup {
+    padding-inline: 9px;
+    font-size: 12px;
+  }
+}
+
+.auth-nav-login:hover,
+.auth-nav-login[aria-current="page"],
+.auth-account-panel button:hover {
+  background: #3b275e;
+}
+
+.auth-account-menu {
+  position: relative;
+}
+
+.auth-account-menu summary {
+  cursor: pointer;
+}
+
+.auth-account-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  gap: 10px;
+  width: max-content;
+  min-width: 150px;
+  max-width: min(240px, 90vw);
+  padding: 12px;
+  border: 1px solid #51466e;
+  border-radius: 12px;
+  background: #11142c;
+  color: #f5f4ff;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-account {
+  margin: 24px 0;
+}
+
+.dashboard-account h2 {
+  margin: 0 0 12px;
+  font: 800 20px var(--font-display);
+}
+
+.dashboard-account dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 36px;
+}
+
+.dashboard-account dt {
+  color: #c5bfdb;
+}
+
+.dashboard-account dd {
+  margin: 4px 0 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-preview {
+  margin: 24px 0;
+}
+
+.dashboard-preview h2 {
+  margin-bottom: 12px;
+  font: 800 24px var(--font-display);
+}
+
+.dashboard-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 14px;
+}
+
+.dashboard-preview-grid a:hover {
+  border-color: #8053d5;
+}
+
+.dashboard-preview-grid p {
+  margin-top: 8px;
+  color: #c5bfdb;
+}

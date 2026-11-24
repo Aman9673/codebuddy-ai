@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { recordActivity } from "../lib/activity";
 import { useEffect, useState } from "react";
-import { lessonContent, lessons } from "../lessons/course";
+import { isLearningLanguage, learningLanguages, lessonContent, lessons, type LearningLanguage } from "../lessons/course";
+import { compiledQuizQuestions } from "../lessons/compiled-courses";
+import LearningLanguagePicker from "../components/LearningLanguagePicker";
 
 const STORAGE_KEY = "codebuddy.completedLessons";
 type Question = { question: string; code?: string; options: string[]; answer: number; reason: string };
@@ -61,13 +63,19 @@ const extraQuestions: Record<number, Question[]> = {
 
 export default function QuizzesPage() {
   const [selected, setSelected] = useState<number | null>(null);
+  const [language, setLanguage] = useState<LearningLanguage>("python");
   const [responses, setResponses] = useState<Record<number, number>>({});
   const [completed, setCompleted] = useState<number[]>([]);
   const [storageError, setStorageError] = useState("");
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const id = Number(new URLSearchParams(window.location.search).get("lesson"));
-      if (lessons.some((lesson) => lesson.id === id)) setSelected(id);
+      const params = new URLSearchParams(window.location.search);
+      const lesson = lessons.find((item) => item.id === Number(params.get("lesson")));
+      const requestedLanguage = params.get("language");
+      if (lesson) {
+        setSelected(lesson.id);
+        setLanguage(lesson.language ?? "python");
+      } else if (isLearningLanguage(requestedLanguage)) setLanguage(requestedLanguage);
       try {
         const saved: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
         if (Array.isArray(saved)) setCompleted([...new Set(saved.filter((id): id is number => typeof id === "number" && lessons.some((lesson) => lesson.id === id)))]);
@@ -77,12 +85,13 @@ export default function QuizzesPage() {
   }, []);
   const lesson = lessons.find((item) => item.id === selected);
   const original = selected ? lessonContent[selected] : null;
-  const questions: Question[] = original && selected ? [original, ...extraQuestions[selected]] : [];
+  const pathLessons = lessons.filter((item) => (item.language ?? "python") === language);
+  const questions: Question[] = original && selected ? [original, ...(extraQuestions[selected] ?? compiledQuizQuestions[selected] ?? [])] : [];
   const allCorrect = questions.length > 0 && questions.every((question, index) => responses[index] === question.answer);
   function open(id: number | null) {
     setSelected(id);
     setResponses({});
-    window.history.replaceState(null, "", id ? `/quizzes?lesson=${id}` : "/quizzes");
+    window.history.replaceState(null, "", id ? `/quizzes?lesson=${id}` : `/quizzes?language=${language}`);
     window.scrollTo(0, 0);
   }
   function answer(questionIndex: number, optionIndex: number) {
@@ -99,9 +108,9 @@ export default function QuizzesPage() {
   }
   return <main className="learn-page"><section className="lessons-content">
     <span className="learn-eyebrow">PRACTICE & UNDERSTANDING</span>
-    <h1>Python quizzes</h1>
+    <h1>{learningLanguages[language]} quizzes</h1>
     <p>Study at your own pace, then check your understanding here. Each topic has three questions with explanations. Answer all three correctly to complete a topic and earn its XP.</p>
-    <p className="quiz-progress">{completed.length} of {lessons.length} topics completed · Retry questions as you learn.</p>
+    <p className="quiz-progress">{pathLessons.filter((item) => completed.includes(item.id)).length} of {pathLessons.length} topics completed · Retry questions as you learn.</p>
     {storageError && <p role="status">{storageError}</p>}
     {lesson && original ? <>
       <button className="back-link" onClick={() => open(null)}>← All quizzes</button>
@@ -121,6 +130,12 @@ export default function QuizzesPage() {
         </article>;
       })}
       {allCorrect && <div className="lesson-objectives" role="status"><h3>Topic complete!</h3><p>You answered every question correctly. This topic counts once toward your progress and {lesson.xp} XP.</p><button className="primary-learn-button" onClick={() => open(null)}>Choose another quiz</button></div>}
-    </> : <div className="chapter-list">{lessons.map((item) => <article className="lesson-row" key={item.id}><span className="lesson-row-icon">{item.emoji}</span><div className="lesson-row-info"><h2>{item.title}</h2><p>3 questions · {item.xp} XP {completed.includes(item.id) ? "· Completed ✓" : ""}</p><Link href={`/lessons?lesson=${item.id}`}>Read lesson</Link></div><button className="open-lesson-button" onClick={() => open(item.id)}>{completed.includes(item.id) ? "Retry quiz" : "Start quiz"}</button></article>)}</div>}
+    </> : <>
+      <LearningLanguagePicker language={language} onChange={(value) => {
+        setLanguage(value);
+        window.history.replaceState(null, "", `/quizzes?language=${value}`);
+      }} />
+      <div className="chapter-list">{pathLessons.map((item) => <article className="lesson-row" key={item.id}><span className="lesson-row-icon">{item.emoji}</span><div className="lesson-row-info"><h2>{item.title}</h2><p>3 questions · {item.xp} XP {completed.includes(item.id) ? "· Completed ✓" : ""}</p><Link href={`/lessons?lesson=${item.id}`}>Read lesson</Link></div><button className="open-lesson-button" onClick={() => open(item.id)}>{completed.includes(item.id) ? "Retry quiz" : "Start quiz"}</button></article>)}</div>
+    </>}
   </section></main>;
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Python & JavaScript playground",
-  description: "Run Python and JavaScript in your browser with saved drafts, lesson examples, and console output.",
+  title: "Code playground",
+  description: "Practice Python, JavaScript, C++, Java, and C# with saved drafts, worked examples, and console output.",
 };
 
 export default function PlaygroundLayout({
